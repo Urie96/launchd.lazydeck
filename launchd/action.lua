@@ -62,7 +62,7 @@ end
 
 -- 辅助函数：获取当前选中的服务信息
 local function get_selected_service()
-  local entry = lc.api.page_get_hovered()
+  local entry = lc.api.get_hovered()
   if not entry or entry.kind ~= 'service' or not entry.label then return nil end
   return entry
 end
