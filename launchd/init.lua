@@ -11,8 +11,8 @@ local function info_entry(key, message, detail, color)
     message = message,
     detail = detail,
     color = color or 'darkgray',
-    display = lc.style.line {
-      lc.style.span(message):fg(color or 'darkgray'),
+    display = deck.style.line {
+      deck.style.span(message):fg(color or 'darkgray'),
     },
   }
 end
@@ -32,8 +32,8 @@ local function service_entry(label, pid, status, category)
     status = status,
     category = category,
     domain = config.get().domain,
-    display = lc.style.line {
-      lc.style.span(label):fg(status_color(category)),
+    display = deck.style.line {
+      deck.style.span(label):fg(status_color(category)),
     },
   }
 end
@@ -44,9 +44,9 @@ function M.setup(opt)
 end
 
 function M.list(_, cb)
-  lc.system({ config.get().command, 'list' }, function(out)
+  deck.system({ config.get().command, 'list' }, function(out)
     if out.code ~= 0 then
-      lc.log('error', 'Failed to list services: {}', out.stderr or 'Unknown error')
+      deck.log('error', 'Failed to list services: {}', out.stderr or 'Unknown error')
       cb(meta.attach {
         info_entry('error', 'Failed to list services', out.stderr or 'Unknown error', 'red'),
       })

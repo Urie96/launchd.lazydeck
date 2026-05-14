@@ -3,10 +3,10 @@ local plist = require 'launchd.plist'
 
 local M = {}
 
-local function line(parts) return lc.style.line(parts) end
-local function text(lines) return lc.style.text(lines) end
+local function line(parts) return deck.style.line(parts) end
+local function text(lines) return deck.style.text(lines) end
 local function span(value, color)
-  local s = lc.style.span(tostring(value or ''))
+  local s = deck.style.span(tostring(value or ''))
   if color and color ~= '' then s = s:fg(color) end
   return s
 end
@@ -48,7 +48,7 @@ local function resolve_target(service_info, callback)
     end
 
     local target = domain .. '/' .. service_info.label
-    lc.system({ config.get().command, 'print', target }, function(out)
+    deck.system({ config.get().command, 'print', target }, function(out)
       if out.code == 0 then
         callback(target, domain, true, out.stdout)
         return
@@ -62,7 +62,7 @@ end
 
 -- 辅助函数：获取当前选中的服务信息
 local function get_selected_service()
-  local entry = lc.api.get_hovered()
+  local entry = deck.api.get_hovered()
   if not entry or entry.kind ~= 'service' or not entry.label then return nil end
   return entry
 end
@@ -70,7 +70,7 @@ end
 -- 辅助函数：获取服务的启用状态
 local function get_service_status(service_info, callback)
   resolve_target(service_info, function(_, domain)
-    lc.system({ config.get().command, 'print-disabled', domain }, function(out)
+    deck.system({ config.get().command, 'print-disabled', domain }, function(out)
       if out.code ~= 0 then
         callback {
           is_enabled = true,
@@ -95,7 +95,7 @@ end
 local function do_service_action(action_name)
   local service_info = get_selected_service()
   if not service_info then
-    lc.notify 'Please select a service first'
+    deck.notify 'Please select a service first'
     return
   end
 
@@ -131,16 +131,16 @@ local function do_service_action(action_name)
       table.insert(cmd, 'print')
       table.insert(cmd, target)
     else
-      lc.notify('Unknown action: ' .. action_name)
+      deck.notify('Unknown action: ' .. action_name)
       return
     end
 
-    lc.interactive(cmd, { wait_confirm = function(exit_code) return exit_code ~= 0 end }, function(exit_code)
+    deck.interactive(cmd, { wait_confirm = function(exit_code) return exit_code ~= 0 end }, function(exit_code)
       if exit_code == 0 then
-        lc.notify(action_name .. ' for ' .. label .. ' successful')
-        lc.cmd 'reload'
+        deck.notify(action_name .. ' for ' .. label .. ' successful')
+        deck.cmd 'reload'
       else
-        lc.notify(action_name .. ' for ' .. label .. ' failed')
+        deck.notify(action_name .. ' for ' .. label .. ' failed')
       end
     end)
   end)
@@ -250,7 +250,7 @@ end
 function M.select_action()
   local service_info = get_selected_service()
   if not service_info then
-    lc.notify 'Please select a service first'
+    deck.notify 'Please select a service first'
     return
   end
 
@@ -262,20 +262,20 @@ function M.select_action()
     if service_info.pid ~= '-' then
       table.insert(options, {
         value = 'stop',
-        display = lc.style.line { ('󰓛 Stop'):fg 'red' },
+        display = deck.style.line { ('󰓛 Stop'):fg 'red' },
       })
       table.insert(options, {
         value = 'kill',
-        display = lc.style.line { ('󰚌 Kill (SIGTERM)'):fg 'red' },
+        display = deck.style.line { ('󰚌 Kill (SIGTERM)'):fg 'red' },
       })
       table.insert(options, {
         value = 'kill9',
-        display = lc.style.line { ('󰚌 Kill (SIGKILL)'):fg 'red' },
+        display = deck.style.line { ('󰚌 Kill (SIGKILL)'):fg 'red' },
       })
     else
       table.insert(options, {
         value = 'start',
-        display = lc.style.line { ('󰐊 Start'):fg 'green' },
+        display = deck.style.line { ('󰐊 Start'):fg 'green' },
       })
     end
 
@@ -283,21 +283,21 @@ function M.select_action()
     if status.is_enabled then
       table.insert(options, {
         value = 'disable',
-        display = lc.style.line { ('󰌾 Disable'):fg 'red' },
+        display = deck.style.line { ('󰌾 Disable'):fg 'red' },
       })
     else
       table.insert(options, {
         value = 'enable',
-        display = lc.style.line { ('󰌿 Enable'):fg 'green' },
+        display = deck.style.line { ('󰌿 Enable'):fg 'green' },
       })
     end
 
     table.insert(options, {
       value = 'bootout',
-      display = lc.style.line { ('󰩺 Bootout'):fg 'red' },
+      display = deck.style.line { ('󰩺 Bootout'):fg 'red' },
     })
 
-    lc.select({
+    deck.select({
       prompt = 'Select an action for ' .. service_info.label,
       options = options,
     }, function(choice)
