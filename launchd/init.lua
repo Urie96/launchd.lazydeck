@@ -3,6 +3,14 @@ local meta = require 'launchd.meta'
 
 local M = {}
 
+function M.meta()
+  return {
+    icon = '󰒋',
+    desc = 'macOS launchd service manager',
+    color = 'magenta',
+  }
+end
+
 local function info_entry(key, message, detail, color)
   return {
     key = key,
